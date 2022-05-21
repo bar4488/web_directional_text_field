@@ -15,14 +15,14 @@ a simple package to create a directionaly accurate text field in the web, as a f
 
 ## Features
 
-this package implements `DirectionalTextField` and `DirectionalTextFormField` which behav simmilarly to the flutter ones.
-it uses `<input>` tag behind the scenes to give a real web experience. 
+this package implements `WebTextField` and `WebTextFormField` which behave simmilarly to the flutter ones.
+the implementation uses the `<input>` html tag behind the scenes to give a real web experience. 
 
 ## Getting started
 
 before using any of the widgets, be sure to put the line
 ```dart
-DirectionalTextField.initialize();
+WebTextField.initialize();
 ```
 in the main function!
 
@@ -32,7 +32,7 @@ a simple example:
 
 ```dart
 void main() {
-  DirectionalTextField.initialize();
+  WebTextField.initialize();
   runApp(const MyApp());
 }
 
@@ -58,11 +58,17 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Scaffold(
         body: Column(
-          children: const [
-            DirectionalTextField(
-              decoration: InputDecoration(label: Text("hey")),
+          children: [
+            const WebTextField(
+              decoration: InputDecoration(label: const Text("hey")),
+              initialValue: "initial value even for DirectionalTextField",
+              textDirection: TextFieldDirection.ltr,
             ),
-            TextField(
+            WebTextFormField(
+              decoration: const InputDecoration(label: Text("hey")),
+              initialValue: "initial value",
+            ),
+            const TextField(
               decoration: InputDecoration(label: Text("hey")),
             ),
           ],
@@ -71,4 +77,5 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
 ```

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:web_directional_text_field/web_directional_text_field.dart';
 
 void main() {
-  DirectionalTextField.initialize();
+  WebTextField.initialize();
   runApp(const MyApp());
 }
 
@@ -29,11 +29,12 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         body: Column(
           children: [
-            const DirectionalTextField(
+            const WebTextField(
               decoration: InputDecoration(label: const Text("hey")),
               initialValue: "initial value even for DirectionalTextField",
+              textDirection: TextFieldDirection.ltr,
             ),
-            DirectionalTextFormField(
+            WebTextFormField(
               decoration: const InputDecoration(label: Text("hey")),
               initialValue: "initial value",
             ),

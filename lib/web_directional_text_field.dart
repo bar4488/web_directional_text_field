@@ -27,7 +27,7 @@ final Map<LogicalKeySet, Intent> scrollShortcutOverrides = kIsWeb
       }
     : <LogicalKeySet, Intent>{};
 
-class DirectionalTextField extends StatefulWidget {
+class WebTextField extends StatefulWidget {
   static final Map<int, InputElement> _elements = {};
 
   static void initialize() {
@@ -45,7 +45,7 @@ class DirectionalTextField extends StatefulWidget {
     });
   }
 
-  const DirectionalTextField({
+  const WebTextField({
     Key? key,
     this.onChanged,
     this.style,
@@ -59,8 +59,10 @@ class DirectionalTextField extends StatefulWidget {
     this.controller,
     this.initialValue,
     this.obscureText = false,
+    this.textDirection = TextFieldDirection.auto,
   }) : super(key: key);
 
+  final TextFieldDirection textDirection;
   final String? initialValue;
   final Function(String)? onChanged;
   final TextStyle? style;
@@ -75,10 +77,12 @@ class DirectionalTextField extends StatefulWidget {
   final bool obscureText;
 
   @override
-  State<DirectionalTextField> createState() => _DirectionalTextFieldState();
+  State<WebTextField> createState() => _WebTextFieldState();
 }
 
-class _DirectionalTextFieldState extends State<DirectionalTextField> {
+enum TextFieldDirection { rtl, ltr, auto }
+
+class _WebTextFieldState extends State<WebTextField> {
   int? id;
   FocusNode focusNode = FocusNode();
 
@@ -110,7 +114,7 @@ class _DirectionalTextFieldState extends State<DirectionalTextField> {
       shortcuts: scrollShortcutOverrides,
       child: GestureDetector(
         onTap: () {
-          var e = DirectionalTextField._elements[id]!;
+          var e = WebTextField._elements[id]!;
           e.selectionStart = e.selectionEnd = e.value?.length ?? 1;
           e.focus();
         },
@@ -139,10 +143,11 @@ class _DirectionalTextFieldState extends State<DirectionalTextField> {
                         viewType: 'input',
                         onPlatformViewCreated: (i) {
                           id = i;
-                          var e = DirectionalTextField._elements[i]!;
+                          var e = WebTextField._elements[i]!;
                           e.type = widget.obscureText ? "password" : "text";
                           e.style.fontSize = "16px";
                           e.style.padding = "0px";
+                          e.dir = widget.textDirection.name;
                           e.style.font =
                               '''16px "Segoe UI", Arial, sans-serif''';
                           e.defaultValue = value;
@@ -195,12 +200,12 @@ class _DirectionalTextFieldState extends State<DirectionalTextField> {
   void onControllerChange() {
     if (widget.controller != null && widget.controller!.text != value) {
       value = widget.controller!.text;
-      DirectionalTextField._elements[id!]!.value = value;
+      WebTextField._elements[id!]!.value = value;
     }
   }
 
   void onFocusChanged() {
-    var e = DirectionalTextField._elements[id!]!;
+    var e = WebTextField._elements[id!]!;
     if (focusNode.hasFocus) {
       e.focus();
     } else {
@@ -209,8 +214,8 @@ class _DirectionalTextFieldState extends State<DirectionalTextField> {
   }
 }
 
-class DirectionalTextFormField extends FormField<String> {
-  DirectionalTextFormField({
+class WebTextFormField extends FormField<String> {
+  WebTextFormField({
     Key? key,
     this.controller,
     String? initialValue,
@@ -235,7 +240,6 @@ class DirectionalTextFormField extends FormField<String> {
           enabled: enabled ?? decoration?.enabled ?? true,
           autovalidateMode: autovalidateMode ?? AutovalidateMode.disabled,
           builder: (FormFieldState<String> field) {
-            final _TextFormFieldState state = field as _TextFormFieldState;
             final InputDecoration effectiveDecoration = (decoration ??
                     const InputDecoration())
                 .applyDefaults(Theme.of(field.context).inputDecorationTheme);
@@ -246,7 +250,7 @@ class DirectionalTextFormField extends FormField<String> {
               }
             }
 
-            return DirectionalTextField(
+            return WebTextField(
               controller: controller,
               initialValue: initialValue,
               decoration:
@@ -273,6 +277,5 @@ class DirectionalTextFormField extends FormField<String> {
 
 class _TextFormFieldState extends FormFieldState<String> {
   @override
-  DirectionalTextFormField get widget =>
-      super.widget as DirectionalTextFormField;
+  WebTextFormField get widget => super.widget as WebTextFormField;
 }

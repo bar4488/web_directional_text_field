@@ -147,6 +147,8 @@ class _WebTextFieldState extends State<WebTextField> {
                           e.type = widget.obscureText ? "password" : "text";
                           e.style.fontSize = "16px";
                           e.style.padding = "0px";
+                          e.style.paddingBottom =
+                              "8px"; // for letters like 'g' which are under the bottom line.
                           e.dir = widget.textDirection.name;
                           e.style.font =
                               '''16px "Segoe UI", Arial, sans-serif''';

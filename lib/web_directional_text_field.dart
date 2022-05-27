@@ -58,6 +58,7 @@ class WebTextField extends StatefulWidget {
     this.cssValues,
     this.controller,
     this.initialValue,
+    this.inputFontSize = 16,
     this.obscureText = false,
     this.textDirection = TextFieldDirection.auto,
   }) : super(key: key);
@@ -69,6 +70,7 @@ class WebTextField extends StatefulWidget {
   final TextAlign? textAlign;
   final TextAlignVertical? textAlignVertical;
   final bool expands;
+  final int inputFontSize;
   final Color? cursorColor;
   final Color? selectionColor;
   final InputDecoration? decoration;
@@ -151,7 +153,7 @@ class _WebTextFieldState extends State<WebTextField> {
                               "8px"; // for letters like 'g' which are under the bottom line.
                           e.dir = widget.textDirection.name;
                           e.style.font =
-                              '''16px "Segoe UI", Arial, sans-serif''';
+                              '''${widget.inputFontSize}px "Segoe UI", Arial, sans-serif''';
                           e.defaultValue = value;
                           e.style.height = "100%";
                           var theme = Theme.of(context);
@@ -232,6 +234,7 @@ class WebTextFormField extends FormField<String> {
     FormFieldValidator<String>? validator,
     bool? enabled,
     bool obscureText = false,
+    int inputFontsize = 16,
     AutovalidateMode? autovalidateMode,
   }) : super(
           key: key,
@@ -262,6 +265,7 @@ class WebTextFormField extends FormField<String> {
               cursorColor: cursorColor,
               selectionColor: selectionColor,
               obscureText: obscureText,
+              inputFontSize: inputFontsize,
               onChanged: onChangedHandler,
             );
           },

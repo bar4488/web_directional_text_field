@@ -31,8 +31,9 @@ class _MyAppState extends State<MyApp> {
           children: [
             const WebTextField(
               decoration: InputDecoration(label: const Text("hey")),
-              initialValue: "initial value even for DirectionalTextField",
-              textDirection: TextFieldDirection.ltr,
+              initialValue: "initial value even gfor WebTextField",
+              textDirection: TextFieldDirection.auto,
+              inputFontSize: 12,
             ),
             WebTextFormField(
               decoration: const InputDecoration(label: Text("hey")),

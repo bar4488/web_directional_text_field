@@ -236,6 +236,7 @@ class WebTextFormField extends FormField<String> {
     bool obscureText = false,
     int inputFontsize = 16,
     AutovalidateMode? autovalidateMode,
+    this.textDirection = TextFieldDirection.auto,
   }) : super(
           key: key,
           initialValue:
@@ -267,6 +268,7 @@ class WebTextFormField extends FormField<String> {
               obscureText: obscureText,
               inputFontSize: inputFontsize,
               onChanged: onChangedHandler,
+              textDirection: textDirection,
             );
           },
         );
@@ -276,6 +278,7 @@ class WebTextFormField extends FormField<String> {
   /// If null, this widget will create its own [TextEditingController] and
   /// initialize its [TextEditingController.text] with [initialValue].
   final TextEditingController? controller;
+  final TextFieldDirection textDirection;
 
   @override
   FormFieldState<String> createState() => _TextFormFieldState();

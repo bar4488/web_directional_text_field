@@ -10,19 +10,19 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-final Map<LogicalKeySet, Intent> scrollShortcutOverrides = kIsWeb
-    ? <LogicalKeySet, Intent>{
-        LogicalKeySet(LogicalKeyboardKey.space):
+final Map<ShortcutActivator, Intent> scrollShortcutOverrides = kIsWeb
+    ? <ShortcutActivator, Intent>{
+        SingleActivator(LogicalKeyboardKey.space):
             DoNothingAndStopPropagationIntent(),
-        LogicalKeySet(LogicalKeyboardKey.arrowUp):
+        SingleActivator(LogicalKeyboardKey.arrowUp):
             DoNothingAndStopPropagationIntent(),
-        LogicalKeySet(LogicalKeyboardKey.arrowDown):
+        SingleActivator(LogicalKeyboardKey.arrowDown):
             DoNothingAndStopPropagationIntent(),
-        LogicalKeySet(LogicalKeyboardKey.arrowLeft):
+        SingleActivator(LogicalKeyboardKey.arrowLeft):
             DoNothingAndStopPropagationIntent(),
-        LogicalKeySet(LogicalKeyboardKey.arrowRight):
+        SingleActivator(LogicalKeyboardKey.arrowRight):
             DoNothingAndStopPropagationIntent(),
-        LogicalKeySet(LogicalKeyboardKey.tab):
+        SingleActivator(LogicalKeyboardKey.tab):
             DoNothingAndStopPropagationIntent(),
       }
     : <LogicalKeySet, Intent>{};
@@ -112,18 +112,18 @@ class _WebTextFieldState extends State<WebTextField> {
   @override
   Widget build(BuildContext context) {
     TextStyle s = widget.style ?? Theme.of(context).textTheme.subtitle1!;
-    return Shortcuts(
-      shortcuts: scrollShortcutOverrides,
-      child: GestureDetector(
-        onTap: () {
-          var e = WebTextField._elements[id]!;
-          e.selectionStart = e.selectionEnd = e.value?.length ?? 1;
-          e.focus();
-        },
-        child: MouseRegion(
-          cursor: SystemMouseCursors.text,
-          onEnter: (PointerEnterEvent event) => _handleHover(true),
-          onExit: (PointerExitEvent event) => _handleHover(false),
+    return GestureDetector(
+      onTap: () {
+        var e = WebTextField._elements[id]!;
+        e.selectionStart = e.selectionEnd = e.value?.length ?? 1;
+        e.focus();
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.text,
+        onEnter: (PointerEnterEvent event) => _handleHover(true),
+        onExit: (PointerExitEvent event) => _handleHover(false),
+        child: Shortcuts(
+          shortcuts: scrollShortcutOverrides,
           child: AnimatedBuilder(
             animation: focusNode,
             builder: (BuildContext context, Widget? child) {

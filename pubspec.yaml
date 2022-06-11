@@ -1,6 +1,6 @@
 name: web_directional_text_field
 description: minimal web implementation for TextField and TextFormField
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/bar4488/web_directional_text_field
 
 environment:

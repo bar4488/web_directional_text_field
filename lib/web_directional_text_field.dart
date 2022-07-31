@@ -2,6 +2,7 @@ library web_directional_text_field;
 
 // ignore_for_file: prefer_const_constructors, avoid_web_libraries_in_flutter, file_names
 
+import 'dart:async';
 import 'dart:html';
 import 'dart:ui' as ui;
 
@@ -92,12 +93,26 @@ class _WebTextFieldState extends State<WebTextField> {
   late String value;
   bool _isHovering = false;
 
+  bool pressed = false;
+  static StreamController<_WebTextFieldState> pressedId =
+      StreamController.broadcast();
+  StreamSubscription? s;
+
   @override
   void initState() {
     _controller =
         widget.controller ?? TextEditingController(text: widget.initialValue);
     value = _controller.text;
     focusNode.addListener(onFocusChanged);
+    s = pressedId.stream.listen((event) {
+      setState(() {
+        if (event == this) {
+          pressed = true;
+        } else {
+          pressed = false;
+        }
+      });
+    });
     super.initState();
   }
 
@@ -114,9 +129,9 @@ class _WebTextFieldState extends State<WebTextField> {
     TextStyle s = widget.style ?? Theme.of(context).textTheme.subtitle1!;
     return GestureDetector(
       onTap: () {
-        var e = WebTextField._elements[id]!;
-        e.selectionStart = e.selectionEnd = e.value?.length ?? 1;
-        e.focus();
+        setState(() {
+          pressedId.add(this);
+        });
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.text,
@@ -127,6 +142,19 @@ class _WebTextFieldState extends State<WebTextField> {
           child: AnimatedBuilder(
             animation: focusNode,
             builder: (BuildContext context, Widget? child) {
+              TextDirection t = ui.TextDirection.rtl;
+              switch (widget.textDirection) {
+                case TextFieldDirection.ltr:
+                  t = ui.TextDirection.ltr;
+                  break;
+                case TextFieldDirection.rtl:
+                  t = ui.TextDirection.rtl;
+                  break;
+                case TextFieldDirection.auto:
+                  t = ui.TextDirection.ltr;
+                  break;
+                default:
+              }
               return Focus(
                 focusNode: focusNode,
                 child: SizedBox(
@@ -141,49 +169,62 @@ class _WebTextFieldState extends State<WebTextField> {
                     isHovering: _isHovering,
                     child: SizedBox(
                       height: (s.height ?? 1) * s.fontSize!,
-                      child: HtmlElementView(
-                        viewType: 'input',
-                        onPlatformViewCreated: (i) {
-                          id = i;
-                          var e = WebTextField._elements[i]!;
-                          e.type = widget.obscureText ? "password" : "text";
-                          e.style.fontSize = "16px";
-                          e.style.padding = "0px";
-                          e.style.paddingBottom =
-                              "8px"; // for letters like 'g' which are under the bottom line.
-                          e.dir = widget.textDirection.name;
-                          e.style.font =
-                              '''${widget.inputFontSize}px "Segoe UI", Arial, sans-serif''';
-                          e.defaultValue = value;
-                          e.style.height = "100%";
-                          var theme = Theme.of(context);
-                          e.style.setProperty("caret-color",
-                              "#${(widget.cursorColor ?? theme.textSelectionTheme.cursorColor ?? Colors.lightBlue).value.toRadixString(16).substring(2)}");
-                          widget.cssValues?.forEach((key, value) {
-                            e.style.setProperty(key, value);
-                          });
-                          e.parent!.children.add(StyleElement()
-                            ..innerHtml = '''
+                      child: pressed
+                          ? HtmlElementView(
+                              viewType: 'input',
+                              onPlatformViewCreated: (i) {
+                                id = i;
+                                var e = WebTextField._elements[i]!;
+                                e.type =
+                                    widget.obscureText ? "password" : "text";
+                                e.style.fontSize = "16px";
+                                e.style.padding = "0px";
+                                e.style.paddingBottom =
+                                    "8px"; // for letters like 'g' which are under the bottom line.
+                                e.dir = widget.textDirection.name;
+                                e.style.font =
+                                    '''${widget.inputFontSize}px "Segoe UI", Arial, sans-serif''';
+                                e.defaultValue = value;
+                                e.style.height = "100%";
+                                var theme = Theme.of(context);
+                                e.style.setProperty("caret-color",
+                                    "#${(widget.cursorColor ?? theme.textSelectionTheme.cursorColor ?? Colors.lightBlue).value.toRadixString(16).substring(2)}");
+                                widget.cssValues?.forEach((key, value) {
+                                  e.style.setProperty(key, value);
+                                });
+                                e.parent!.children.add(StyleElement()
+                                  ..innerHtml = '''
                             input::selection {
                               background: #${(widget.selectionColor ?? theme.textSelectionTheme.selectionColor ?? Colors.blue[200]!).value.toRadixString(16).substring(2)};
                             }
                           ''');
-                          e.onInput.capture((event) {
-                            if ((e.value ?? "") != value) {
-                              value = e.value ?? "";
-                              _controller.text = e.value ?? "";
-                              widget.onChanged?.call(e.value ?? "");
-                            }
-                          });
-                          e.onFocus.capture((event) {
-                            focusNode.requestFocus();
-                          });
-                          e.onBlur.capture((event) {
-                            focusNode.unfocus();
-                          });
-                          _controller.addListener(onControllerChange);
-                        },
-                      ),
+                                e.onInput.capture((event) {
+                                  if ((e.value ?? "") != value) {
+                                    value = e.value ?? "";
+                                    _controller.text = e.value ?? "";
+                                    widget.onChanged?.call(e.value ?? "");
+                                  }
+                                });
+                                e.onFocus.capture((event) {
+                                  focusNode.requestFocus();
+                                });
+                                e.onBlur.capture((event) {
+                                  focusNode.unfocus();
+                                });
+                                _controller.addListener(onControllerChange);
+                                e.selectionStart =
+                                    e.selectionEnd = e.value?.length ?? 1;
+                                e.focus();
+                              },
+                            )
+                          : Text(
+                              _controller.text,
+                              style: widget.style?.copyWith(
+                                  color: Colors.black,
+                                  fontSize: widget.inputFontSize.toDouble()),
+                              textAlign: widget.textAlign,
+                              textDirection: t,
+                            ),
                     ),
                   ),
                 ),
@@ -198,6 +239,7 @@ class _WebTextFieldState extends State<WebTextField> {
   @override
   void dispose() {
     _controller.removeListener(onControllerChange);
+    s?.cancel();
     super.dispose();
   }
 
